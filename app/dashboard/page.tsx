@@ -2,12 +2,15 @@ import React from 'react'
 import Quote from '../../components/Quote'
 import StreakCard from '../../components/StreakCard'
 import AverageMood from '../../components/AverageMood'
+import MoodTrend from '../../components/MoodTrend'
 
 export default function DashboardPage() {
   // placeholders until we wire real data
   const sobrietyStreak = 5
   const impulseStreak = 3
   const avgMood = 7.4
+
+  const sampleMoodData = [6, 7, 8, 7, 6, 7, 8, 9, 7, 8]
 
   return (
     <main className="min-h-screen p-6">
@@ -17,6 +20,8 @@ export default function DashboardPage() {
           <StreakCard title="Impulse Mastery Streak" count={impulseStreak} />
           <AverageMood value={avgMood} />
         </div>
+
+        <MoodTrend data={sampleMoodData} />
 
         <div className="mt-6">
           <Quote />

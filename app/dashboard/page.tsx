@@ -1,32 +1,27 @@
 import React from 'react'
-import { createSupabaseServerClient } from '../../lib/supabaseServerClient'
+import Quote from '../../components/Quote'
+import StreakCard from '../../components/StreakCard'
+import AverageMood from '../../components/AverageMood'
 
-export default async function DashboardPage() {
-  // For now we create a server client and attempt to read from auth to get user
-  let user = null
-  try {
-    const supabase = createSupabaseServerClient()
-    const { data } = await supabase.auth.getUser()
-    user = (data as any).user ?? null
-  } catch (err) {
-    // ignore
-  }
-
-  if (!user) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold">Dashboard</h2>
-          <p className="mt-3">You are not signed in. Please <a className="text-blue-600" href="/login">login</a>.</p>
-        </div>
-      </main>
-    )
-  }
+export default function DashboardPage() {
+  // placeholders until we wire real data
+  const sobrietyStreak = 5
+  const impulseStreak = 3
+  const avgMood = 7.4
 
   return (
     <main className="min-h-screen p-6">
-      <h1 className="text-2xl font-bold">Welcome back, {(user as any).email}</h1>
-      <p className="mt-2">This is the placeholder dashboard; mood charts and streaks will go here.</p>
+      <div className="max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StreakCard title="Sobriety Streak" count={sobrietyStreak} />
+          <StreakCard title="Impulse Mastery Streak" count={impulseStreak} />
+          <AverageMood value={avgMood} />
+        </div>
+
+        <div className="mt-6">
+          <Quote />
+        </div>
+      </div>
     </main>
   )
 }

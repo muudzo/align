@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../(auth)/auth-provider'
-import type { DailyLog } from '../../types'
 
 export default function DailyLogPage() {
   const router = useRouter()

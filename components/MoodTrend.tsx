@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -10,15 +10,70 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js'
+import { supabase } from '../../lib/supabaseClient'
+import { useAuth } from '../(auth)/auth-provider'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
 
-interface MoodTrendProps {
-  data: number[]
-}
+export default function MoodTrend() {
+  const { user } = useAuth()
+  const [data, setData] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-export default function MoodTrend({ data }: MoodTrendProps) {
+  useEffect(() => {
+    if (!user) return
+
+    async function fetchMoodData() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        // Fetch last 14 days of daily_logs for the current user
+        const { data: logs, error: fetchError } = await supabase
+          .from('daily_logs')
+          .select('date,mood')
+          .eq('user_id', user.id)
+          .order('date', { ascending: true })
+          .limit(14)
+
+        if (fetchError) throw fetchError
+
+        // Map moods and fill missing days with null
+        const today = new Date()
+        const moodsArray: number[] = []
+
+        for (let i = 13; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(today.getDate() - i)
+          const formattedDate = date.toISOString().slice(0, 10)
+          const log = logs?.find((l: any) => l.date === formattedDate)
+          moodsArray.push(log?.mood ?? 0) // 0 means no entry yet
+        }
+
+        setData(moodsArray)
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch mood data'
+        setError(errorMessage)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMoodData()
+  }, [user])
+
   const labels = data.map((_, i) => {
     const date = new Date()
     date.setDate(date.getDate() - (data.length - i - 1))
@@ -75,7 +130,7 @@ export default function MoodTrend({ data }: MoodTrendProps) {
     },
     scales: {
       y: {
-        min: 1,
+        min: 0,
         max: 10,
         ticks: {
           stepSize: 1,
@@ -94,6 +149,14 @@ export default function MoodTrend({ data }: MoodTrendProps) {
         },
       },
     },
+  }
+
+  if (loading) {
+    return <div className="text-gray-600 dark:text-gray-400">Loading mood trend...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-600 dark:text-red-400">{error}</div>
   }
 
   return (

@@ -26,38 +26,37 @@ export default function DailyLogPage() {
 
   useEffect(() => {
     let mounted = true
-
+  
     async function loadToday() {
       if (!user) return
-
+  
       setLoading(true)
       setError(null)
       
       try {
+        // ✅ Fetch as array, not .single()
         const { data, error: fetchError } = await supabase
           .from('daily_logs')
           .select('*')
           .eq('date', today)
-          .single()
-
+  
         if (!mounted) return
-
+  
         if (fetchError) {
-          // No entry yet is fine, just means it's a new log
-          if (fetchError.code === 'PGRST116') {
-            setLoading(false)
-            return
-          }
           setError(fetchError.message)
-          setLoading(false)
-          return
-        }
-
-        if (data) {
-          setReflection(data.reflection ?? '')
-          setMood(typeof data.mood === 'number' && data.mood >= 1 && data.mood <= 10 ? data.mood : 6)
-          setAlcoholFree(Boolean(data.alcohol_free))
-          setImpulseControl(Boolean(data.impulse_control))
+        } else if (data && data.length > 0) {
+          // There is a log for today
+          const todayLog = data[0]
+          setReflection(todayLog.reflection ?? '')
+          setMood(todayLog.mood ?? 6)
+          setAlcoholFree(todayLog.alcohol_free ?? false)
+          setImpulseControl(todayLog.impulse_control ?? false)
+        } else {
+          // No log yet — normal case, start fresh
+          setReflection('')
+          setMood(6)
+          setAlcoholFree(false)
+          setImpulseControl(false)
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load log entry'
@@ -66,13 +65,14 @@ export default function DailyLogPage() {
         setLoading(false)
       }
     }
-
+  
     if (user) {
       loadToday()
     }
-
+  
     return () => { mounted = false }
   }, [today, user])
+  
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -98,7 +98,7 @@ export default function DailyLogPage() {
 
       const { error: upsertError } = await supabase
         .from('daily_logs')
-        .upsert(row, { onConflict: 'user_id,date' })
+        .upsert(row, { onConflict: ['user_id,date'] })
 
       if (upsertError) {
         setError(upsertError.message)

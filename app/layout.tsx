@@ -1,7 +1,7 @@
 import './globals.css'
 import React from 'react'
 import { AuthProvider } from './(auth)/auth-provider'
-import Header from '../components/Header'
+import Header from '@/components/Header'
 
 export const metadata = {
   title: 'Align',

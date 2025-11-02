@@ -1,8 +1,8 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabaseClient'
-import { useAuth } from '../(auth)/auth-provider'
+import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/app/(auth)/auth-provider'
 
 export default function DailyLogPage() {
   const router = useRouter()
@@ -98,7 +98,7 @@ export default function DailyLogPage() {
 
       const { error: upsertError } = await supabase
         .from('daily_logs')
-        .upsert(row, { onConflict: ['user_id,date'] })
+        .upsert(row, { onConflict: 'user_id,date' })
 
       if (upsertError) {
         setError(upsertError.message)

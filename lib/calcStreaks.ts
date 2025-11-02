@@ -1,4 +1,4 @@
-import { LogStats } from '../types'
+import { LogStats } from '@/types'
 
 export type LogRow = {
   date: string // YYYY-MM-DD

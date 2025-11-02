@@ -1,14 +1,14 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../app/(auth)/auth-provider'
+import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/app/(auth)/auth-provider'
 import StreakCard from './StreakCard'
 import AverageMood from './AverageMood'
 import MoodTrend from './MoodTrend'
 import Quote from './Quote'
-import { computeStats } from '../lib/calcStreaks'
-import type { LogStats } from '../types'
+import { computeStats } from '@/lib/calcStreaks'
+import type { LogStats } from '@/types'
 
 export default function DashboardClient() {
   const router = useRouter()
@@ -142,8 +142,6 @@ export default function DashboardClient() {
     }
   }
 
-  const defaultMoods = [7, 7, 7, 7, 7, 7]
-
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
@@ -166,7 +164,7 @@ export default function DashboardClient() {
         </button>
       </div>
 
-      <MoodTrend data={stats?.recentMoods && stats.recentMoods.length > 0 ? stats.recentMoods : defaultMoods} />
+      <MoodTrend />
 
       <div className="mt-6">
         <Quote />

@@ -12,8 +12,8 @@ import {
   Legend,
   Filler,
 } from 'chart.js'
-import { supabase } from '../../lib/supabaseClient'
-import { useAuth } from '../(auth)/auth-provider'
+import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/app/(auth)/auth-provider'
 
 ChartJS.register(
   CategoryScale,
@@ -33,9 +33,14 @@ export default function MoodTrend() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!user) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
 
     async function fetchMoodData() {
+      if (!user) return // Type guard
+      
       setLoading(true)
       setError(null)
 
@@ -54,11 +59,13 @@ export default function MoodTrend() {
         const today = new Date()
         const moodsArray: number[] = []
 
+        type LogEntry = { date: string; mood: number | null }
+        
         for (let i = 13; i >= 0; i--) {
           const date = new Date(today)
           date.setDate(today.getDate() - i)
           const formattedDate = date.toISOString().slice(0, 10)
-          const log = logs?.find((l: any) => l.date === formattedDate)
+          const log = logs?.find((l: LogEntry) => l.date === formattedDate)
           moodsArray.push(log?.mood ?? 0) // 0 means no entry yet
         }
 

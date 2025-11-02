@@ -2,8 +2,8 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '../lib/supabaseClient'
-import { useAuth } from '../app/(auth)/auth-provider'
+import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/app/(auth)/auth-provider'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {

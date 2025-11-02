@@ -1,26 +1,33 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 
-const QUOTES = [
+const QUOTES: string[] = [
   "Small daily improvements are the key to staggering long-term results.",
   "Discipline is choosing between what you want now and what you want most.",
   "It does not matter how slowly you go as long as you do not stop.",
   "Focus on progress, not perfection.",
-  "Today’s choices shape tomorrow’s outcomes."
+  "Today's choices shape tomorrow's outcomes.",
+  "The only bad workout is the one that didn't happen.",
+  "Consistency is the mother of mastery.",
+  "Your future self is counting on you today.",
 ]
 
 export default function Quote() {
-  const [quote, setQuote] = useState('')
+  const [quote, setQuote] = useState<string>('')
 
   useEffect(() => {
     const idx = Math.floor(Math.random() * QUOTES.length)
     setQuote(QUOTES[idx])
   }, [])
 
+  if (!quote) {
+    return null
+  }
+
   return (
-    <div className="p-4 rounded bg-white dark:bg-gray-800 shadow">
-      <h3 className="text-sm text-gray-500 dark:text-gray-400">Motivational Quote</h3>
-      <p className="mt-2 text-lg">“{quote}”</p>
+    <div className="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-md">
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Motivation</h3>
+      <p className="text-lg text-gray-900 dark:text-gray-100 italic">"{quote}"</p>
     </div>
   )
 }

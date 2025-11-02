@@ -26,9 +26,20 @@ export default function SignupPage() {
     setMessage(null)
     setError(null)
 
+    // Normalize email - trim whitespace and convert to lowercase
+    const normalizedEmail = email.trim().toLowerCase()
+
     // Basic validation
-    if (!email.trim() || !password.trim()) {
+    if (!normalizedEmail || !password.trim()) {
       setError('Please fill in all fields')
+      setLoading(false)
+      return
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(normalizedEmail)) {
+      setError('Please enter a valid email address')
       setLoading(false)
       return
     }
@@ -39,17 +50,50 @@ export default function SignupPage() {
       return
     }
 
-    const { error: signUpError } = await supabase.auth.signUp({ email, password })
-    if (signUpError) {
-      setError(signUpError.message)
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({ 
+        email: normalizedEmail, 
+        password 
+      })
+
+      if (signUpError) {
+        // Provide user-friendly error messages
+        if (signUpError.message.includes('User already registered')) {
+          setError('An account with this email already exists. Please sign in instead.')
+        } else {
+          setError(signUpError.message)
+        }
+        setLoading(false)
+        return
+      }
+
+      // Check if email confirmation is required
+      if (data?.user && !data.session) {
+        // Email confirmation required
+        setMessage('Account created! Please check your email to confirm your account before signing in.')
+        setTimeout(() => {
+          router.push('/login')
+        }, 4000)
+      } else if (data?.session) {
+        // No email confirmation required - auto login
+        setMessage('Account created successfully! Redirecting...')
+        setTimeout(() => {
+          router.push('/dashboard')
+          router.refresh()
+        }, 1000)
+      } else {
+        // Fallback
+        setMessage('Account created! You can now sign in.')
+        setTimeout(() => {
+          router.push('/login')
+        }, 3000)
+      }
+      
       setLoading(false)
-    } else {
-      setMessage('Account created! Please check your email for confirmation (if email confirmation is enabled).')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
+      setError(errorMessage)
       setLoading(false)
-      // Optionally redirect to login after a delay
-      setTimeout(() => {
-        router.push('/login')
-      }, 3000)
     }
   }
 

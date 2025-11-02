@@ -24,20 +24,52 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
+    // Normalize email - trim whitespace and convert to lowercase
+    const normalizedEmail = email.trim().toLowerCase()
+
     // Basic validation
-    if (!email.trim() || !password.trim()) {
+    if (!normalizedEmail || !password.trim()) {
       setError('Please fill in all fields')
       setLoading(false)
       return
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(normalizedEmail)) {
+      setError('Please enter a valid email address')
       setLoading(false)
-    } else {
-      // Redirect will happen via useEffect
-      router.push('/dashboard')
+      return
+    }
+
+    try {
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({ 
+        email: normalizedEmail, 
+        password 
+      })
+
+      if (loginError) {
+        // Provide user-friendly error messages
+        if (loginError.message.includes('Invalid login credentials') || loginError.message.includes('Email not confirmed')) {
+          setError('Invalid email or password. Please check your credentials or confirm your email if required.')
+        } else if (loginError.message.includes('Email not confirmed')) {
+          setError('Please check your email and confirm your account before signing in.')
+        } else {
+          setError(loginError.message)
+        }
+        setLoading(false)
+        return
+      }
+
+      // Success - redirect to dashboard
+      if (data?.session) {
+        router.push('/dashboard')
+        router.refresh()
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
+      setError(errorMessage)
+      setLoading(false)
     }
   }
 
@@ -95,12 +127,17 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
 
-          <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
-            Don&apos;t have an account?{' '}
-            <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
-              Sign up
-            </a>
-          </p>
+          <div className="mt-4 space-y-2">
+            <p className="text-sm text-center text-gray-600 dark:text-gray-400">
+              Don&apos;t have an account?{' '}
+              <a href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+                Sign up
+              </a>
+            </p>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+              Having trouble? Make sure your email is confirmed and check your credentials.
+            </p>
+          </div>
         </form>
       </div>
     </div>

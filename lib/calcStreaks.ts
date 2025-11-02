@@ -1,3 +1,5 @@
+import { LogStats } from '../types'
+
 export type LogRow = {
   date: string // YYYY-MM-DD
   alcohol_free: boolean | null
@@ -5,18 +7,18 @@ export type LogRow = {
   mood: number | null
 }
 
-function formatDate(d: Date) {
+function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 
-export function computeStats(rows: LogRow[]) {
+export function computeStats(rows: LogRow[]): LogStats {
   // rows expected in descending date order (newest first)
   if (!rows || rows.length === 0) {
     return {
       sobrietyStreak: 0,
       impulseStreak: 0,
       avgMood: null,
-      recentMoods: [] as number[],
+      recentMoods: [],
     }
   }
 
@@ -38,7 +40,7 @@ export function computeStats(rows: LogRow[]) {
   const mostRecentDate = rows[0].date
   let current = new Date(mostRecentDate)
 
-  function countStreak(checkKey: keyof LogRow) {
+  function countStreak(checkKey: keyof LogRow): number {
     let streak = 0
     let cursor = new Date(current)
     while (true) {

@@ -1,38 +1,128 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabaseClient'
+import { useAuth } from '../auth-provider'
 
 export default function SignupPage() {
+  const router = useRouter()
+  const { session, loading: authLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && session) {
+      router.push('/dashboard')
+    }
+  }, [session, authLoading, router])
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
-    const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) setMessage(error.message)
-    else setMessage('Check your inbox for confirmation (if enabled)')
-    setLoading(false)
+    setError(null)
+
+    // Basic validation
+    if (!email.trim() || !password.trim()) {
+      setError('Please fill in all fields')
+      setLoading(false)
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
+      return
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
+    if (signUpError) {
+      setError(signUpError.message)
+      setLoading(false)
+    } else {
+      setMessage('Account created! Please check your email for confirmation (if email confirmation is enabled).')
+      setLoading(false)
+      // Optionally redirect to login after a delay
+      setTimeout(() => {
+        router.push('/login')
+      }, 3000)
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form onSubmit={handleSignup} className="p-6 bg-white dark:bg-gray-800 rounded shadow-md w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">Sign up</h2>
-        {message && <div className="text-sm mb-2">{message}</div>}
-        <label className="block mb-2">
-          <span className="text-sm">Email</span>
-          <input className="mt-1 block w-full" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </label>
-        <label className="block mb-4">
-          <span className="text-sm">Password</span>
-          <input type="password" className="mt-1 block w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        <button className="bg-green-600 text-white px-4 py-2 rounded" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="w-full max-w-md">
+        <form onSubmit={handleSignup} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Sign up</h2>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-red-600 dark:text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
+          {message && (
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-green-600 dark:text-green-400 text-sm">
+              {message}
+            </div>
+          )}
+
+          <label className="block mb-4">
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</span>
+            <input
+              type="email"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              placeholder="your@email.com"
+            />
+          </label>
+
+          <label className="block mb-6">
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</span>
+            <input
+              type="password"
+              required
+              minLength={6}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              placeholder="At least 6 characters"
+            />
+            <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">Must be at least 6 characters</span>
+          </label>
+
+          <button
+            type="submit"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            {loading ? 'Creating...' : 'Create account'}
+          </button>
+
+          <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
+            Already have an account?{' '}
+            <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+              Sign in
+            </a>
+          </p>
+        </form>
+      </div>
     </div>
   )
 }

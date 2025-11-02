@@ -38,11 +38,11 @@ export function computeStats(rows: LogRow[]): LogStats {
   for (const r of rows) dateMap.set(r.date, r)
 
   const mostRecentDate = rows[0].date
-  let current = new Date(mostRecentDate)
+  const current = new Date(mostRecentDate)
 
   function countStreak(checkKey: keyof LogRow): number {
     let streak = 0
-    let cursor = new Date(current)
+    const cursor = new Date(current)
     while (true) {
       const key = formatDate(cursor)
       const row = dateMap.get(key)

@@ -27,7 +27,7 @@ export default function Quote() {
   return (
     <div className="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-md">
       <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Daily Motivation</h3>
-      <p className="text-lg text-gray-900 dark:text-gray-100 italic">"{quote}"</p>
+      <p className="text-lg text-gray-900 dark:text-gray-100 italic">&ldquo;{quote}&rdquo;</p>
     </div>
   )
 }

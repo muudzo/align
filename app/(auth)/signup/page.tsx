@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
+import { normalizeEmail, isValidEmail } from '@/lib/validators'
 import { useAuth } from '../auth-provider'
 
 export default function SignupPage() {
@@ -27,7 +28,7 @@ export default function SignupPage() {
     setError(null)
 
     // Normalize email - trim whitespace and convert to lowercase
-    const normalizedEmail = email.trim().toLowerCase()
+    const normalizedEmail = normalizeEmail(email)
 
     // Basic validation
     if (!normalizedEmail || !password.trim()) {
@@ -37,8 +38,7 @@ export default function SignupPage() {
     }
 
     // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(normalizedEmail)) {
+    if (!isValidEmail(normalizedEmail)) {
       setError('Please enter a valid email address')
       setLoading(false)
       return

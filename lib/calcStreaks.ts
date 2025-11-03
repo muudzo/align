@@ -1,5 +1,13 @@
 import { LogStats } from '@/types'
 
+/**
+ * Compute high-level statistics for a list of daily log rows.
+ *
+ * Input is expected in descending date order (newest first).
+ * Returns sobriety and impulse-control streaks, average mood,
+ * and the recent mood values for charting.
+ */
+
 export type LogRow = {
   date: string // YYYY-MM-DD
   alcohol_free: boolean | null
@@ -40,6 +48,10 @@ export function computeStats(rows: LogRow[]): LogStats {
   const mostRecentDate = rows[0].date
   const current = new Date(mostRecentDate)
 
+  /**
+   * Counts consecutive days where the given boolean field is true,
+   * starting from the most recent date and going backwards day by day.
+   */
   function countStreak(checkKey: keyof LogRow): number {
     let streak = 0
     const cursor = new Date(current)

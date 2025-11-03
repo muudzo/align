@@ -11,6 +11,7 @@ import { computeStats } from '@/lib/calcStreaks'
 import type { LogStats } from '@/types'
 
 export default function DashboardClient() {
+  // Client-only dashboard: loads recent daily_logs, computes stats for widgets, and renders charts/cards
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)

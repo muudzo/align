@@ -26,6 +26,7 @@ ChartJS.register(
   Filler
 )
 
+// Renders a 14-day mood trend line chart for the current user
 export default function MoodTrend() {
   const { user } = useAuth()
   const [data, setData] = useState<number[]>([])

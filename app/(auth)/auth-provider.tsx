@@ -20,6 +20,10 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  /**
+   * Provides authenticated session state to the client.
+   * Subscribes to Supabase auth changes and exposes { session, user, loading }.
+   */
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 

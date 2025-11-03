@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/app/(auth)/auth-provider'
 
 export default function DailyLogPage() {
+  // Daily log entry page: loads today's log (if exists) and allows creating/updating today's entry
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [reflection, setReflection] = useState('')

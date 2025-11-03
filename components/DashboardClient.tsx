@@ -8,6 +8,7 @@ import AverageMood from './AverageMood'
 import MoodTrend from './MoodTrend'
 import Quote from './Quote'
 import { computeStats } from '@/lib/calcStreaks'
+import { toCsv, downloadCsv } from '@/lib/csv'
 import type { LogStats } from '@/types'
 
 export default function DashboardClient() {
@@ -114,27 +115,8 @@ export default function DashboardClient() {
       }
 
       const headers = ['date', 'alcohol_free', 'impulse_control', 'mood', 'reflection']
-      const csv = [headers.join(',')]
-      
-      for (const row of exportRows) {
-        const line = headers.map((h) => {
-          const v = row[h as keyof typeof row]
-          if (v === null || v === undefined) return ''
-          const s = String(v).replace(/"/g, '""')
-          return `"${s}"`
-        }).join(',')
-        csv.push(line)
-      }
-
-      const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `align-daily-logs-${new Date().toISOString().split('T')[0]}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      const csv = toCsv(headers, exportRows as Array<Record<string, unknown>>)
+      downloadCsv(csv, `align-daily-logs-${new Date().toISOString().split('T')[0]}.csv`)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to export data'
       setError(errorMessage)

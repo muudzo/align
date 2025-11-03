@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { normalizeEmail, isValidEmail } from '@/lib/validators'
-import { useAuth } from '../auth-provider'
+import { useAuth } from '@/app/(auth)/auth-provider'
 
 export default function LoginPage() {
   const router = useRouter()

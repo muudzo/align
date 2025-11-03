@@ -10,6 +10,15 @@ export interface DailyLog {
   created_at: string
 }
 
+// Minimal shape used by dashboard queries
+export interface DailyLogLite {
+  date: string
+  alcohol_free: boolean | null
+  impulse_control: boolean | null
+  mood: number | null
+  reflection?: string | null
+}
+
 // Stats types
 export interface LogStats {
   sobrietyStreak: number

@@ -10,6 +10,7 @@ import Quote from './Quote'
 import { computeStats } from '@/lib/calcStreaks'
 import { toCsv, downloadCsv } from '@/lib/csv'
 import type { LogStats } from '@/types'
+import type { DailyLogLite } from '@/types'
 
 export default function DashboardClient() {
   // Client-only dashboard: loads recent daily_logs, computes stats for widgets, and renders charts/cards
@@ -17,7 +18,7 @@ export default function DashboardClient() {
   const { user, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [rows, setRows] = useState<Array<{ date: string; alcohol_free: boolean | null; impulse_control: boolean | null; mood: number | null }>>([])
+  const [rows, setRows] = useState<DailyLogLite[]>([])
   const [stats, setStats] = useState<LogStats | null>(null)
 
   // Redirect if not authenticated
